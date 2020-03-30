@@ -3,14 +3,11 @@
 
 #include "pch.h"
 #include <iostream>
-#include "Stage.h"
+#include "Maingame.h"
 
 int main()
 {
-	Stage s;
-	s.Initialize();
-	while (1)
-	{
-		s.Render();
-	}
+	Maingame game;
+	game.Initialize();
+	game.Logic();
 }

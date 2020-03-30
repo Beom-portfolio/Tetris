@@ -11,34 +11,14 @@ public:
 public:
 	virtual bool Initialize();
 	virtual int Update(const float& timeDelta);
-	virtual void Render();
+	virtual void Render(HANDLE& frameBuffer);
+	virtual void Release();
 
 private:
-	void Flipping();
-	void Clear();
+	WCHAR m_SceneBuffer[SIZE_Y + 1][SIZE_X + 1] = { 0, };
+	int m_Board[BOARD_SIZE_Y][BOARD_SIZE_X] = {0,};
 
-private:
-	char test[SIZE_Y][SIZE_X] =
-	{  
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n",
-		"###################\n"
-	};
-
-	HANDLE m_Screen[2];
-	int m_currentBuffer = 0;
+	short m_intervalX = 3;
+	short m_intervalY = 1;
 };
 
