@@ -25,7 +25,6 @@ bool Stage::Initialize()
 		m_SceneBuffer[i][SIZE_X - 1] = L'\n';
 	}
 
-
 	for (int i = 0; i < BOARD_SIZE_Y; ++i)
 	{
 		for (int j = 0; j < BOARD_SIZE_X; ++j)
@@ -44,14 +43,22 @@ bool Stage::Initialize()
 		m_Board[0][i] = BOARD_LINE;
 	}
 
+	// ºí·°
+	m_Block = new Block(BLOCK_MIDDLE);
+	m_Block->Initialize();
+	m_Block->SetPos(4, -4);
+	m_Block->SetSpeed(2);
+
 	return true;
 }
 
 int Stage::Update(const float & timeDelta)
 {
 	UpdateObject(timeDelta);
+	
 	UpdateInput();
 	UpdateCollision();
+	
 	UpdateBoard();
 
 	return 0;
@@ -68,8 +75,10 @@ void Stage::Render(HANDLE& frameBuffer)
 			case BOARD_EMPTY: 
 				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¡¡'; break;
 			case BOARD_WALL:  
-				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¡à'; break;
+				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¢Ë'; break;
 			case BOARD_BLOCK:
+				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¡à'; break;
+			case BOARD_ARRANGED:
 				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¡á'; break;
 			case BOARD_LINE:
 				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'£ß'; break;
@@ -81,7 +90,6 @@ void Stage::Render(HANDLE& frameBuffer)
 	COORD CursorPosition = {0, 0};
 	SetConsoleCursorPosition(frameBuffer, CursorPosition);
 	WriteConsoleW(frameBuffer, m_SceneBuffer, SIZE_X * SIZE_Y, &dw, NULL);
-	//WriteFile(frameBuffer, m_SceneBuffer, sizeof(m_SceneBuffer), &dw, NULL);
 }
 
 void Stage::Release()
@@ -92,10 +100,10 @@ int Stage::UpdateObject(const float& timeDelta)
 {
 	if (nullptr == m_Block)
 	{
-		m_Block = new Block(BLOCK_MIDDLE);
+		m_Block = new Block(BLOCK_STYLE(rand() % BLOCK_END));
 		m_Block->Initialize();
-		m_Block->SetPos(5, 0);
-		m_Block->SetSpeed(0.5);
+		m_Block->SetPos(5, -4);
+		m_Block->SetSpeed(2);
 	}
 	m_Block->Update(timeDelta);
 
@@ -107,6 +115,9 @@ int Stage::UpdateBoard()
 	RenewBoard();
 
 	// block
+	if (nullptr == m_Block) 
+		return 0;
+
 	SHAPE& shapeInfo = ((Block*)m_Block)->GetShape();
 	int shapePosX, shapePosY;
 	m_Block->GetPos(shapePosX, shapePosY);
@@ -133,20 +144,66 @@ int Stage::UpdateInput()
 	switch (key)
 	{
 	case ARROW_LEFT:
-		shapePosX -= 1; break;
-	case ARROW_RIGHT:
-		shapePosX += 1; break;
+		if (CheckCollision(shapePosX - 1, shapePosY))
+			shapePosX -= 1; 
+		m_Block->SetPosX(shapePosX);
+		break;
+	case ARROW_RIGHT: 
+		if (CheckCollision(shapePosX + 1, shapePosY))
+			shapePosX += 1; 
+		m_Block->SetPosX(shapePosX);
+		break;
+	case ARROW_DOWN: 
+		shapePosY += 1;
+		m_Block->SetPosY(shapePosY); 
+		break;
 	}
-
-	m_Block->SetPosX(shapePosX);
 
 	return 0;
 }
 
 int Stage::UpdateCollision()
 {
+	int shapePosX, shapePosY;
+	m_Block->GetPos(shapePosX, shapePosY);
+
+	SHAPE& shapeInfo = ((Block*)m_Block)->GetShape();
+	if (!CheckCollision(shapePosX, shapePosY))
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			for (int j = 0; j < 4; ++j)
+			{
+				if (1 == shapeInfo.shape[i][j])
+				{
+					m_Board[i + shapePosY - 1][j + shapePosX] = BOARD_ARRANGED;
+				}
+			}
+		}
+
+		SAFE_DELETE(m_Block);
+	}
 
 	return 0;
+}
+
+bool Stage::CheckCollision(int x, int y)
+{
+	SHAPE& shapeInfo = ((Block*)m_Block)->GetShape();
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			if (1 == shapeInfo.shape[i][j])
+			{
+				if (BOARD_WALL == m_Board[i + y][j + x] ||
+					BOARD_ARRANGED == m_Board[i + y][j + x])
+					return false;	
+			}
+		}
+	}
+
+	return true;
 }
 
 void Stage::RenewBoard()

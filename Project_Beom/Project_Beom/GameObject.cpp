@@ -20,12 +20,12 @@ void GameObject::SetPos(int x, int y)
 
 void GameObject::SetPosX(int x)
 {
-	m_posX = (int)x;
+	m_posX = (float)x;
 }
 
 void GameObject::SetPosY(int y)
 {
-	m_posY = (int)y;
+	m_posY = (float)y;
 }
 
 void GameObject::SetSpeed(float speed)

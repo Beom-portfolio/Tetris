@@ -13,8 +13,6 @@ public:
 	void GetPos(int& x, int& y);
 	void GetSpeed(float& speed);
 
-
-
 public:
 	virtual bool Initialize() = 0;
 	virtual int Update(const float& timeDelta) = 0;
