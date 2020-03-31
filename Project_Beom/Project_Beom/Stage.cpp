@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Stage.h"
-
+#include "Block.h"
+#include "InputManager.h"
 
 Stage::Stage()
 {
@@ -48,6 +49,10 @@ bool Stage::Initialize()
 
 int Stage::Update(const float & timeDelta)
 {
+	UpdateObject(timeDelta);
+	UpdateInput();
+	UpdateCollision();
+	UpdateBoard();
 
 	return 0;
 }
@@ -64,6 +69,8 @@ void Stage::Render(HANDLE& frameBuffer)
 				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¡¡'; break;
 			case BOARD_WALL:  
 				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¡à'; break;
+			case BOARD_BLOCK:
+				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'¡á'; break;
 			case BOARD_LINE:
 				m_SceneBuffer[i + m_intervalY][j + m_intervalX] = L'£ß'; break;
 			}
@@ -79,4 +86,82 @@ void Stage::Render(HANDLE& frameBuffer)
 
 void Stage::Release()
 {
+}
+
+int Stage::UpdateObject(const float& timeDelta)
+{
+	if (nullptr == m_Block)
+	{
+		m_Block = new Block(BLOCK_MIDDLE);
+		m_Block->Initialize();
+		m_Block->SetPos(5, 0);
+		m_Block->SetSpeed(0.5);
+	}
+	m_Block->Update(timeDelta);
+
+	return 0;
+}
+
+int Stage::UpdateBoard()
+{
+	RenewBoard();
+
+	// block
+	SHAPE& shapeInfo = ((Block*)m_Block)->GetShape();
+	int shapePosX, shapePosY;
+	m_Block->GetPos(shapePosX, shapePosY);
+	for (int y = 0; y < 4; ++y)
+	{
+		if (y + shapePosY < 0)
+			continue;
+
+		for (int x = 0; x < 4; ++x)
+		{
+			if (shapeInfo.shape[y][x] == 1)
+				m_Board[y + shapePosY][x + shapePosX] = BOARD_BLOCK;
+		}
+	}
+
+	return 0;
+}
+
+int Stage::UpdateInput()
+{
+	int key = GETMGR(InputManager)->GetInputKey();
+	int shapePosX, shapePosY;
+	m_Block->GetPos(shapePosX, shapePosY);
+	switch (key)
+	{
+	case ARROW_LEFT:
+		shapePosX -= 1; break;
+	case ARROW_RIGHT:
+		shapePosX += 1; break;
+	}
+
+	m_Block->SetPosX(shapePosX);
+
+	return 0;
+}
+
+int Stage::UpdateCollision()
+{
+
+	return 0;
+}
+
+void Stage::RenewBoard()
+{
+	// clear
+	for (int i = 0; i < BOARD_SIZE_Y - 1; ++i)
+	{
+		for (int j = 1; j < BOARD_SIZE_X - 1; ++j)
+		{
+			if (BOARD_BLOCK == m_Board[i][j])
+				m_Board[i][j] = BOARD_EMPTY;
+		}
+	}
+	for (int i = 1; i < BOARD_SIZE_X - 1; ++i)
+	{
+		m_Board[0][i] = BOARD_LINE;
+	}
 }

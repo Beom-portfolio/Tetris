@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Maingame.h"
 #include "SceneManager.h"
+#include "InputManager.h"
+#include "Timer.h"
 
 Maingame::Maingame()
 {
@@ -11,16 +13,24 @@ Maingame::~Maingame()
 	CloseHandle(m_FrameBuffer[0]);
 	CloseHandle(m_FrameBuffer[1]);
 	DESTROYMGR(SceneManager);
+	SAFE_DELETE(m_Timer);
 }
 
 bool Maingame::Initialize()
 {
+	// 콘솔 커서 클릭 비활성화
+	HANDLE hInput;
+	DWORD prev_mode;
+	hInput = GetStdHandle(STD_INPUT_HANDLE);
+	GetConsoleMode(hInput, &prev_mode);
+	SetConsoleMode(hInput, prev_mode & ~ENABLE_QUICK_EDIT_MODE);
 
 	m_FrameBuffer[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
 	m_FrameBuffer[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+
 
 	CONSOLE_CURSOR_INFO cci;
 	cci.bVisible = FALSE;
@@ -31,15 +41,25 @@ bool Maingame::Initialize()
 	m_SceneMgr = GETMGR(SceneManager);
 	m_SceneMgr->ChangeScene(SCENE_STAGE);
 
+	m_Timer = new Timer;
+	m_Timer->initialize();
+
 	return true;
 }
 
 void Maingame::Logic()
 {
+	InputManager* inputManager = GETMGR(InputManager);
+
 	while (true)
 	{
-		m_SceneMgr->Update(0.f);
+		// update
+		m_Timer->Update();
 
+		inputManager->Update();
+		m_SceneMgr->Update(m_Timer->GetTimeDelta());
+
+		// render
 		Flipping();
 		Clear();
 		m_SceneMgr->Render(m_FrameBuffer[m_currentBuffer]);

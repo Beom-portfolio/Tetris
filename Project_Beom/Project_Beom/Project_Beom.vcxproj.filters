@@ -40,6 +40,9 @@
     <Filter Include="Managers">
       <UniqueIdentifier>{f1d9d5a4-f6ca-4c8d-b8d7-c4e8c3853cfd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{20a25e90-77e2-4450-a8c9-d7da7151cb25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -75,6 +78,15 @@
     <ClInclude Include="Struct.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Block.h">
+      <Filter>Object\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -96,6 +108,15 @@
       <Filter>Scene\Stage</Filter>
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Block.cpp">
+      <Filter>Object\Block</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
       <Filter>Managers</Filter>
     </ClCompile>
   </ItemGroup>

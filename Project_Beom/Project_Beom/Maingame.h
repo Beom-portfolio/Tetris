@@ -18,5 +18,6 @@ private:
 	int m_currentBuffer = 0;
 
 	class SceneManager* m_SceneMgr = nullptr;
+	class Timer* m_Timer = nullptr;
 };
 

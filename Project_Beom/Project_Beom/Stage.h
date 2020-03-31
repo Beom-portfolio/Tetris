@@ -15,10 +15,20 @@ public:
 	virtual void Release();
 
 private:
+	int UpdateObject(const float& timeDelta);
+	int UpdateBoard();
+	int UpdateInput();
+	int UpdateCollision();
+
+	void RenewBoard();
+
+private:
 	WCHAR m_SceneBuffer[SIZE_Y + 1][SIZE_X + 1] = { 0, };
 	int m_Board[BOARD_SIZE_Y][BOARD_SIZE_X] = {0,};
 
 	short m_intervalX = 3;
-	short m_intervalY = 1;
+	short m_intervalY = 2;
+
+	class GameObject* m_Block = nullptr;
 };
 
