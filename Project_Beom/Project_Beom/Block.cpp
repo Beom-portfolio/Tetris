@@ -1,12 +1,11 @@
 #include "pch.h"
 #include "Block.h"
 
-Block::Block(BLOCK_STYLE style)
-	: m_shapeStyle(style), GameObject()
+Block::Block(BLOCK_STYLE style, BLOCK_ROTATE rotate)
+	: m_shapeStyle(style), m_rotState(rotate),
+	GameObject()
 {
-	memset(&m_BlockShape.shape, 0, sizeof(int) * (4 * 4));
-	m_BlockShape.rotatePoint.x = -1;
-	m_BlockShape.rotatePoint.y = -1;
+	memset(m_Shape, 0, sizeof(int) * (4 * 4 * 4));
 }
 
 Block::~Block()
@@ -19,77 +18,156 @@ bool Block::Initialize()
 	{
 	case BLOCK_SQUARE:
 	{
-		int square[4][4] = { {1, 1, 0, 0},
-							 {1, 1, 0, 0},
-							 {0, 0, 0, 0},
-							 {0, 0, 0, 0} };
-		memcpy(m_BlockShape.shape, square, sizeof(int) * (4 * 4));
+		int square[ROTATE_END][4][4] = {
+		{{0, 1, 1, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 1, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 1, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 1, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}} };
+		memcpy(m_Shape, square, sizeof(int) * (4 * 4 * 4));
 		break;
 	}
 	case BLOCK_LINE:
 	{
-		int line[4][4] = { {1, 0, 0, 0},
-						   {1, 0, 0, 0},
-						   {1, 0, 0, 0},
-						   {1, 0, 0, 0} };
-		memcpy(m_BlockShape.shape, line, sizeof(int) * (4 * 4));
-		m_BlockShape.rotatePoint.x = 0;
-		m_BlockShape.rotatePoint.y = 0;
+		int line[ROTATE_END][4][4] = {
+		{{0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 1, 0, 0}},
+		{{0, 0, 0, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0},
+		 {1, 1, 1, 1}},
+		{{0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 1, 0, 0}},
+		{{0, 0, 0, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0},
+		 {1, 1, 1, 1}} };
+		memcpy(m_Shape, line, sizeof(int) * (4 * 4 * 4));
 		break;
 	}
 	case BLOCK_MIDDLE:
 	{
-		int middle[4][4] = { {0, 1, 0, 0},
-							 {1, 1, 1, 0},
-							 {0, 0, 0, 0},
-							 {0, 0, 0, 0} };
-		memcpy(m_BlockShape.shape, middle, sizeof(int) * (4 * 4));
-		m_BlockShape.rotatePoint.x = 1;
-		m_BlockShape.rotatePoint.y = 1;
+		int middle[ROTATE_END][4][4] = {
+		{{0, 1, 0, 0},
+		 {1, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 0, 0},
+		 {0, 1, 1, 0},
+		 {0, 1, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 0, 0, 0},
+		 {1, 1, 1, 0},
+		 {0, 1, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 0, 0},
+		 {1, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 0, 0, 0}} };
+		memcpy(m_Shape, middle, sizeof(int) * (4 * 4 * 4));
 		break;
 	}
 	case BLOCK_TWIST:
 	{
-		int twist[4][4] = { {0, 1, 0, 0},
-							 {0, 1, 1, 0},
-							 {0, 0, 1, 0},
-							 {0, 0, 0, 0} };
-		memcpy(m_BlockShape.shape, twist, sizeof(int) * (4 * 4));
-		m_BlockShape.rotatePoint.x = 1;
-		m_BlockShape.rotatePoint.y = 1;
+		int twist[ROTATE_END][4][4] = {
+		{{0, 1, 0, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 1, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 1, 0},
+		 {1, 1, 0, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 0, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 1, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 1, 0},
+		 {1, 1, 0, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}} };
+		memcpy(m_Shape, twist, sizeof(int) * (4 * 4 * 4));
 		break;
 	}
 	case BLOCK_TWIST_R:
 	{
-		int twist_r[4][4] = { {0, 0, 1, 0},
-							  {0, 1, 1, 0},
-							  {0, 1, 0, 0},
-							  {0, 0, 0, 0} };
-		memcpy(m_BlockShape.shape, twist_r, sizeof(int) * (4 * 4));
-		m_BlockShape.rotatePoint.x = 1;
-		m_BlockShape.rotatePoint.y = 1;
+		int twist_r[ROTATE_END][4][4] = {
+		{{0, 0, 1, 0},
+		 {0, 1, 1, 0},
+		 {0, 1, 0, 0},
+		 {0, 0, 0, 0}},
+		{{1, 1, 0, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 0, 1, 0},
+		 {0, 1, 1, 0},
+		 {0, 1, 0, 0},
+		 {0, 0, 0, 0}},
+		{{1, 1, 0, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}} };
+		memcpy(m_Shape, twist_r, sizeof(int)* (4 * 4 * 4));
 		break;
 	}
 	case BLOCK_BENT:
 	{
-		int bent[4][4] = { {0, 1, 1, 0},
-							 {0, 1, 0, 0},
-							 {0, 1, 0, 0},
-							 {0, 0, 0, 0} };
-		memcpy(m_BlockShape.shape, bent, sizeof(int) * (4 * 4));
-		m_BlockShape.rotatePoint.x = 1;
-		m_BlockShape.rotatePoint.y = 1;
+		int bent[ROTATE_END][4][4] = {
+		{{0, 1, 1, 0},
+		 {0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 0, 0, 0},
+		 {1, 1, 1, 0},
+		 {0, 0, 1, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {1, 1, 0, 0},
+		 {0, 0, 0, 0}},
+		{{1, 0, 0, 0},
+		 {1, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}} };
+		memcpy(m_Shape, bent, sizeof(int)* (4 * 4 * 4));
 		break;
 	}
 	case BLOCK_BENT_R:
 	{
-		int bent_r[4][4] = { {1, 1, 0, 0},
-							 {0, 1, 0, 0},
-							 {0, 1, 0, 0},
-							 {0, 0, 0, 0} };
-		memcpy(m_BlockShape.shape, bent_r, sizeof(int) * (4 * 4));
-		m_BlockShape.rotatePoint.x = 1;
-		m_BlockShape.rotatePoint.y = 1;
+		int bent_r[ROTATE_END][4][4] = { 
+		{{1, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 0, 1, 0},
+		 {1, 1, 1, 0},
+		 {0, 0, 0, 0},
+		 {0, 0, 0, 0}},
+		{{0, 1, 0, 0},
+		 {0, 1, 0, 0},
+		 {0, 1, 1, 0},
+		 {0, 0, 0, 0}},
+		{{0, 0, 0, 0},
+		 {1, 1, 1, 0},
+		 {1, 0, 0, 0},
+		 {0, 0, 0, 0}} };
+		memcpy(m_Shape, bent_r, sizeof(int)* (4 * 4 * 4));
 		break;
 	}
 	}
@@ -106,4 +184,19 @@ int Block::Update(const float& timeDelta)
 
 void Block::Render(int* board)
 {
+}
+
+void Block::Rotate(bool clockwise)
+{
+	if (clockwise)
+	{
+		m_rotState = BLOCK_ROTATE((m_rotState + 1) % ROTATE_END);
+	}
+	else
+	{
+		if (0 > m_rotState - 1)
+			m_rotState = BLOCK_ROTATE(ROTATE_END - 1);
+		else
+			m_rotState = BLOCK_ROTATE(m_rotState - 1);
+	}
 }

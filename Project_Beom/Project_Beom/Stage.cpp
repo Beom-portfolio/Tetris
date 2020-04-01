@@ -44,7 +44,7 @@ bool Stage::Initialize()
 	}
 
 	// 블럭
-	m_Block = new Block(BLOCK_MIDDLE);
+	m_Block = new Block(BLOCK_STYLE(rand() % BLOCK_END), BLOCK_ROTATE(rand() % ROTATE_END));
 	m_Block->Initialize();
 	m_Block->SetPos(4, -4);
 	m_Block->SetSpeed(2);
@@ -58,7 +58,8 @@ int Stage::Update(const float & timeDelta)
 	
 	UpdateInput();
 	UpdateCollision();
-	
+	UpdateLineClear();
+
 	UpdateBoard();
 
 	return 0;
@@ -100,9 +101,9 @@ int Stage::UpdateObject(const float& timeDelta)
 {
 	if (nullptr == m_Block)
 	{
-		m_Block = new Block(BLOCK_STYLE(rand() % BLOCK_END));
+		m_Block = new Block(BLOCK_STYLE(rand() % BLOCK_END), BLOCK_ROTATE(rand() % ROTATE_END));
 		m_Block->Initialize();
-		m_Block->SetPos(5, -4);
+		m_Block->SetPos(4, -4);
 		m_Block->SetSpeed(2);
 	}
 	m_Block->Update(timeDelta);
@@ -118,7 +119,8 @@ int Stage::UpdateBoard()
 	if (nullptr == m_Block) 
 		return 0;
 
-	SHAPE& shapeInfo = ((Block*)m_Block)->GetShape();
+	int shapeInfo[4][4]; 
+	((Block*)m_Block)->GetShape(shapeInfo);
 	int shapePosX, shapePosY;
 	m_Block->GetPos(shapePosX, shapePosY);
 	for (int y = 0; y < 4; ++y)
@@ -128,7 +130,7 @@ int Stage::UpdateBoard()
 
 		for (int x = 0; x < 4; ++x)
 		{
-			if (shapeInfo.shape[y][x] == 1)
+			if (shapeInfo[y][x] == 1)
 				m_Board[y + shapePosY][x + shapePosX] = BOARD_BLOCK;
 		}
 	}
@@ -153,10 +155,16 @@ int Stage::UpdateInput()
 			shapePosX += 1; 
 		m_Block->SetPosX(shapePosX);
 		break;
+	case ARROW_UP:
+		((Block*)m_Block)->Rotate();
+		if(!CheckCollision(shapePosX, shapePosY))
+			((Block*)m_Block)->Rotate(false);
+		break;
 	case ARROW_DOWN: 
 		shapePosY += 1;
 		m_Block->SetPosY(shapePosY); 
 		break;
+
 	}
 
 	return 0;
@@ -167,14 +175,15 @@ int Stage::UpdateCollision()
 	int shapePosX, shapePosY;
 	m_Block->GetPos(shapePosX, shapePosY);
 
-	SHAPE& shapeInfo = ((Block*)m_Block)->GetShape();
+	int shapeInfo[4][4];
+	((Block*)m_Block)->GetShape(shapeInfo);
 	if (!CheckCollision(shapePosX, shapePosY))
 	{
 		for (int i = 0; i < 4; ++i)
 		{
 			for (int j = 0; j < 4; ++j)
 			{
-				if (1 == shapeInfo.shape[i][j])
+				if (1 == shapeInfo[i][j])
 				{
 					m_Board[i + shapePosY - 1][j + shapePosX] = BOARD_ARRANGED;
 				}
@@ -187,14 +196,45 @@ int Stage::UpdateCollision()
 	return 0;
 }
 
+int Stage::UpdateLineClear()
+{
+	// 라인 검사
+	// 범위 y축 0번째는 게임오버 BOARD_SIZE_Y - 1번째는 벽
+	// 범위 x축 0번째와 BOARD_SIZE_X - 1번째는 벽
+
+	for (int y = 1; y < BOARD_SIZE_Y - 1; ++y)
+	{
+		int count = 0;
+		for (int x = 1; x < BOARD_SIZE_X - 1; ++x)
+		{
+			if (BOARD_ARRANGED == m_Board[y][x])
+				++count;
+		}
+		if (BOARD_SIZE_X - 2 == count)
+		{
+			// 라인 삭제
+			memset(&m_Board[y][1], BOARD_EMPTY, sizeof(int) * (BOARD_SIZE_X - 2));
+
+			// 앞으로 땡기기
+			for (int pull_y = y - 1; pull_y > 0; --pull_y)
+			{
+				memcpy(&m_Board[pull_y + 1][1], &m_Board[pull_y][1], sizeof(int) * (BOARD_SIZE_X - 2));
+			}
+		}
+	}
+
+	return 0;
+}
+
 bool Stage::CheckCollision(int x, int y)
 {
-	SHAPE& shapeInfo = ((Block*)m_Block)->GetShape();
+	int shapeInfo[4][4];
+	((Block*)m_Block)->GetShape(shapeInfo);
 	for (int i = 0; i < 4; ++i)
 	{
 		for (int j = 0; j < 4; ++j)
 		{
-			if (1 == shapeInfo.shape[i][j])
+			if (1 == shapeInfo[i][j])
 			{
 				if (BOARD_WALL == m_Board[i + y][j + x] ||
 					BOARD_ARRANGED == m_Board[i + y][j + x])
@@ -219,6 +259,7 @@ void Stage::RenewBoard()
 	}
 	for (int i = 1; i < BOARD_SIZE_X - 1; ++i)
 	{
+		m_Board[BOARD_SIZE_Y - 1][i] = BOARD_WALL;
 		m_Board[0][i] = BOARD_LINE;
 	}
 }

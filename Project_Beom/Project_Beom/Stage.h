@@ -19,6 +19,7 @@ private:
 	int UpdateBoard();
 	int UpdateInput();
 	int UpdateCollision();
+	int UpdateLineClear();
 
 	bool CheckCollision(int x, int y);
 	void RenewBoard();
@@ -31,6 +32,7 @@ private:
 	short m_intervalY = 2;
 
 	class GameObject* m_Block = nullptr;
-	bool m_CollideCheck = false;
+
+	bool m_eventCheck = false;
 };
 

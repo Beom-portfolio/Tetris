@@ -22,7 +22,7 @@ void InputManager::Update()
 {
 	if (1 == _kbhit())
 	{
-		m_inputKey = getch();
+		m_inputKey = _getch();
 		// 특수 문자, 유니 코드의 경우는 입력값을 한번 더 받아야 한다.
 		if (224 == m_inputKey)
 		{
