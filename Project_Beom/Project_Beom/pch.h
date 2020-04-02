@@ -14,6 +14,7 @@
 #include <conio.h>
 #include <iostream>
 #include <string>
+#include <queue>
 using namespace std;
 
 #include "Includes.h"

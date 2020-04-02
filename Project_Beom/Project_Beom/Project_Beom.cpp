@@ -10,5 +10,4 @@ int main()
 	Maingame game;
 	game.Initialize();
 	game.Logic();
-	
 }

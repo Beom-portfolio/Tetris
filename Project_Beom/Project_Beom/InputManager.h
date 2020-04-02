@@ -17,6 +17,6 @@ public:
 	void Update();
 
 private:
-	int m_inputKey = -1;
+	int m_inputKey = NO_INPUT;
 };
 

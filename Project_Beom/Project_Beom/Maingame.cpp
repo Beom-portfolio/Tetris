@@ -39,7 +39,7 @@ bool Maingame::Initialize()
 	SetConsoleCursorInfo(m_FrameBuffer[1], &cci);
 
 	m_SceneMgr = GETMGR(SceneManager);
-	m_SceneMgr->ChangeScene(SCENE_STAGE);
+	m_SceneMgr->ChangeScene(SCENE_MENU);
 
 	m_Timer = new Timer;
 	m_Timer->initialize();

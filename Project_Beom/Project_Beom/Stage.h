@@ -20,19 +20,29 @@ private:
 	int UpdateInput();
 	int UpdateCollision();
 	int UpdateLineClear();
+	int UpdateStatus();
 
 	bool CheckCollision(int x, int y);
 	void RenewBoard();
-
+	void NextBlock();
+	void MakeBlock();
 private:
-	WCHAR m_SceneBuffer[SIZE_Y + 1][SIZE_X + 1] = { 0, };
 	int m_Board[BOARD_SIZE_Y][BOARD_SIZE_X] = {0,};
-
-	short m_intervalX = 3;
-	short m_intervalY = 2;
-
 	class GameObject* m_Block = nullptr;
-
 	bool m_eventCheck = false;
+
+	int m_level = 1;
+	int m_goal = 5;
+	int m_score = 0;
+	int m_bestScore = 0;
+
+	BLOCK_ROTATE m_nextRotState = ROTATE_END;
+	BLOCK_STYLE m_nextBlockStyle = BLOCK_END;
+	int m_NextShape[4][4];
+	POINT m_willShapePos[4];
+
+	bool m_waitCheck = false;
+	float m_timeForWait = 0.f;
+	WAIT_EVENT m_event = EVENT_END;
 };
 
