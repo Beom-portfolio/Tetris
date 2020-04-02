@@ -2,6 +2,8 @@
 #include "Stage.h"
 #include "Block.h"
 #include "InputManager.h"
+#include "SceneManager.h"
+#include "InfoManager.h"
 
 Stage::Stage()
 {
@@ -39,6 +41,8 @@ bool Stage::Initialize()
 	NextBlock();
 	MakeBlock();
 
+	m_bestScore = GETMGR(InfoManager)->GetBestScore();
+
 	return true;
 }
 
@@ -49,11 +53,20 @@ int Stage::Update(const float & timeDelta)
 	else
 		UpdateObject(timeDelta);
 	
+	if (CheckGameOver())
+	{
+		GETMGR(InfoManager)->SetCurrentScore(m_score);
+		GETMGR(SceneManager)->ChangeScene(SCENE_RESULT);
+		return 0;
+	}
+
 	UpdateLineClear();
 	UpdateInput();
 	UpdateCollision();
 	UpdateStatus();
 	UpdateBoard();
+
+	
 
 	return 0;
 }
@@ -91,15 +104,7 @@ void Stage::Release()
 
 int Stage::UpdateObject(const float& timeDelta)
 {
-	if (nullptr == m_Block)
-	{
-		m_Block = new Block(BLOCK_STYLE(rand() % BLOCK_END), BLOCK_ROTATE(rand() % ROTATE_END));
-		m_Block->Initialize();
-		m_Block->SetPos(4, -4);
-		m_Block->SetSpeed(2);
-	}
 	m_Block->Update(timeDelta);
-
 	return 0;
 }
 
@@ -114,7 +119,7 @@ int Stage::UpdateBoard()
 	m_Block->GetPos(shapePosX, shapePosY);
 
 	// 놓일 위치를 보여줄 블록
-	for (int willY = shapePosY; willY < BOARD_SIZE_Y - 1; ++willY)
+	for (int willY = shapePosY; willY < BOARD_SIZE_Y; ++willY)
 	{
 		if (!CheckCollision(shapePosX, willY + 1))
 		{
@@ -181,7 +186,7 @@ int Stage::UpdateInput()
 		shapePosY += 1;
 		m_Block->SetPosY(shapePosY);
 		// 블록을 계속해서 내리고 있으면 바로 배치한다.
-		if (CheckCollision(shapePosX, shapePosY + 1))
+		if (CheckCollision(shapePosX, shapePosY))
 			break;
 	case SPACE:
 		for (int i = 0; i < 4; ++i)
@@ -221,7 +226,7 @@ int Stage::UpdateCollision()
 	// 1초정도 놓을 시간을 주고 배치
 	if (m_waitCheck && 
 		EVENT_ARRANGE == m_event && 
-		1.f <= m_timeForWait)
+		2.f <= m_timeForWait)
 	{
 		m_waitCheck = false;
 		m_timeForWait = 0.f;
@@ -348,6 +353,16 @@ bool Stage::CheckCollision(int x, int y)
 	return true;
 }
 
+bool Stage::CheckGameOver()
+{
+	for (int x = 1; x < BOARD_SIZE_X - 1; ++x)
+	{
+		if (BOARD_ARRANGED == m_Board[GAME_OVER_LINE][x])
+			return true;
+	}
+	return false;
+}
+
 void Stage::RenewBoard()
 {
 	// clear
@@ -362,7 +377,9 @@ void Stage::RenewBoard()
 	for (int i = 1; i < BOARD_SIZE_X - 1; ++i)
 	{
 		m_Board[BOARD_SIZE_Y - 1][i] = BOARD_WALL;
-		m_Board[GAME_OVER_LINE][i] = BOARD_LINE;
+
+		if(BOARD_ARRANGED != m_Board[GAME_OVER_LINE][i])
+			m_Board[GAME_OVER_LINE][i] = BOARD_LINE;
 	}
 }
 

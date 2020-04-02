@@ -156,11 +156,13 @@
     <ClInclude Include="Enum.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Includes.h" />
+    <ClInclude Include="InfoManager.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="Maingame.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Result.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Stage.h" />
@@ -170,6 +172,7 @@
   <ItemGroup>
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="InfoManager.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Maingame.cpp" />
     <ClCompile Include="MainMenu.cpp" />
@@ -180,6 +183,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Project_Beom.cpp" />
+    <ClCompile Include="Result.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Stage.cpp" />

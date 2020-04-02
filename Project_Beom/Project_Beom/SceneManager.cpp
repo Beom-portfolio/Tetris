@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 #include "Stage.h"
 #include "MainMenu.h"
+#include "Result.h"
 
 SceneManager::SceneManager()
 {
@@ -32,6 +33,7 @@ void SceneManager::ChangeScene(SCENE curScene)
 	{
 	case SCENE_MENU: m_Scene = new MainMenu; break;
 	case SCENE_STAGE: m_Scene = new Stage; break;
+	case SCENE_RESULT: m_Scene = new Result; break;
 	}
 
 	m_Scene->Initialize();

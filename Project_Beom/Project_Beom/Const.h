@@ -5,7 +5,7 @@ const int SIZE_Y = 25;
 
 const int BOARD_SIZE_X = 11;
 const int BOARD_SIZE_Y = 22;
-const int GAME_OVER_LINE = 1;
+const int GAME_OVER_LINE = 2;
 
 const int STATUS_X = BOARD_SIZE_X + 5;
 

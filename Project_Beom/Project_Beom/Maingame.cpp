@@ -2,6 +2,7 @@
 #include "Maingame.h"
 #include "SceneManager.h"
 #include "InputManager.h"
+#include "InfoManager.h"
 #include "Timer.h"
 
 Maingame::Maingame()
@@ -13,6 +14,8 @@ Maingame::~Maingame()
 	CloseHandle(m_FrameBuffer[0]);
 	CloseHandle(m_FrameBuffer[1]);
 	DESTROYMGR(SceneManager);
+	DESTROYMGR(InputManager);
+	DESTROYMGR(InfoManager);
 	SAFE_DELETE(m_Timer);
 }
 
@@ -24,6 +27,13 @@ bool Maingame::Initialize()
 	hInput = GetStdHandle(STD_INPUT_HANDLE);
 	GetConsoleMode(hInput, &prev_mode);
 	SetConsoleMode(hInput, prev_mode & ~ENABLE_QUICK_EDIT_MODE);
+
+	SetConsoleTitle(L"T E T R I S");
+	HWND console;
+	console = GetConsoleWindow();
+	// 화면 최대화, resize 비활성화
+	SetWindowLong(console, GWL_STYLE, GetWindowLong(console, GWL_STYLE) & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX);
+
 
 	m_FrameBuffer[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
@@ -76,5 +86,5 @@ void Maingame::Clear()
 {
 	COORD Coor = { 0, 0 };
 	DWORD dw;
-	FillConsoleOutputCharacter(m_FrameBuffer[m_currentBuffer], ' ', SIZE_X * SIZE_Y, Coor, &dw);
+	FillConsoleOutputCharacter(m_FrameBuffer[m_currentBuffer], ' ', SIZE_X * SIZE_Y * 2, Coor, &dw);
 }

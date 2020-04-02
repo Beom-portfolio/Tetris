@@ -23,6 +23,7 @@ private:
 	int UpdateStatus();
 
 	bool CheckCollision(int x, int y);
+	bool CheckGameOver();
 	void RenewBoard();
 	void NextBlock();
 	void MakeBlock();

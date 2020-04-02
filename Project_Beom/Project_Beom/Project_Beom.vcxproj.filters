@@ -90,6 +90,12 @@
     <ClInclude Include="MainMenu.h">
       <Filter>Scene\Menu</Filter>
     </ClInclude>
+    <ClInclude Include="InfoManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Result.h">
+      <Filter>Scene\Result</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -124,6 +130,12 @@
     </ClCompile>
     <ClCompile Include="MainMenu.cpp">
       <Filter>Scene\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="InfoManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Result.cpp">
+      <Filter>Scene\Result</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
