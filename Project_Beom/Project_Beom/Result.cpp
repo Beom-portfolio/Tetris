@@ -17,14 +17,17 @@ bool Result::Initialize()
 	Scene::Initialize();
 
 	wstring title;
-	wstring score = to_wstring(GETMGR(InfoManager)->GetCurrentScore());
+	wstring score;
+	WCHAR scoreArr[10];
+	wsprintf(scoreArr, L"%6d", GETMGR(InfoManager)->GetCurrentScore());
+	score = scoreArr;
 	title += L"\n\n\n\n\n\n";
 	title += L"              ¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç¢Ç\n";
 	title += L"              ¢Ç                              ¢Ç\n";
 	title += L"              ¢Ç  +-----------------------+   ¢Ç\n";
 	title += L"              ¢Ç  |  G A M E  O V E R..   |   ¢Ç\n";
 	title += L"              ¢Ç  +-----------------------+   ¢Ç\n";
-	title += L"              ¢Ç   YOUR SCORE: " + score + L"            ¢Ç\n";
+	title += L"              ¢Ç   YOUR SCORE: " + score + L"         ¢Ç\n";
 	title += L"              ¢Ç                              ¢Ç\n";
 	title += L"              ¢Ç  Press any key to restart..  ¢Ç\n";
 	title += L"              ¢Ç                              ¢Ç\n";

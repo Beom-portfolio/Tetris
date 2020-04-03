@@ -48,11 +48,6 @@ bool Stage::Initialize()
 
 int Stage::Update(const float & timeDelta)
 {
-	if (m_waitCheck)
-		m_timeForWait += timeDelta;
-	else
-		UpdateObject(timeDelta);
-	
 	if (CheckGameOver())
 	{
 		GETMGR(InfoManager)->SetCurrentScore(m_score);
@@ -60,13 +55,16 @@ int Stage::Update(const float & timeDelta)
 		return 0;
 	}
 
+	if (m_waitCheck)
+		m_timeForWait += timeDelta;
+	else
+		UpdateObject(timeDelta);
+
 	UpdateLineClear();
 	UpdateInput();
 	UpdateCollision();
 	UpdateStatus();
 	UpdateBoard();
-
-	
 
 	return 0;
 }
@@ -112,6 +110,8 @@ int Stage::UpdateBoard()
 {
 	RenewBoard();
 
+	if (nullptr == m_Block)
+		return 0;
 	// block
 	int shapeInfo[4][4]; 
 	((Block*)m_Block)->GetShape(shapeInfo);
@@ -194,7 +194,9 @@ int Stage::UpdateInput()
 			m_Board[m_willShapePos[i].y][m_willShapePos[i].x] = BOARD_ARRANGED;
 		}
 		SAFE_DELETE(m_Block);
-		MakeBlock();
+
+		if(!CheckGameOver())
+			MakeBlock();
 		break;
 	}
 
@@ -203,6 +205,9 @@ int Stage::UpdateInput()
 
 int Stage::UpdateCollision()
 {
+	if (nullptr == m_Block)
+		return 0;
+
 	int shapePosX, shapePosY;
 	m_Block->GetPos(shapePosX, shapePosY);
 
@@ -266,10 +271,14 @@ int Stage::UpdateLineClear()
 			memset(&m_Board[y][1], BOARD_EMPTY, sizeof(int) * (BOARD_SIZE_X - 2));
 
 			// 앞으로 땡기기
-			for (int pull_y = y - 1; pull_y > GAME_OVER_LINE + 1; --pull_y)
+			for (int pull_y = y - 1; pull_y >= GAME_OVER_LINE + 1; --pull_y)
 			{
 				memcpy(&m_Board[pull_y + 1][1], &m_Board[pull_y][1], sizeof(int) * (BOARD_SIZE_X - 2));
 			}
+
+			// 마지막 줄은 땡겨주는 작업을 하면 안되므로(라인줄모양이 땡겨져옴) 그냥 비워준다. 
+			memset(&m_Board[GAME_OVER_LINE + 1][1], BOARD_EMPTY, sizeof(int) * (BOARD_SIZE_X - 2));
+
 		}
 	}
 
@@ -355,10 +364,13 @@ bool Stage::CheckCollision(int x, int y)
 
 bool Stage::CheckGameOver()
 {
-	for (int x = 1; x < BOARD_SIZE_X - 1; ++x)
+	for (int y = GAME_OVER_LINE; y >= 0; --y)
 	{
-		if (BOARD_ARRANGED == m_Board[GAME_OVER_LINE][x])
-			return true;
+		for (int x = 1; x < BOARD_SIZE_X - 1; ++x)
+		{
+			if (BOARD_ARRANGED == m_Board[y][x])
+				return true;
+		}
 	}
 	return false;
 }
@@ -399,8 +411,17 @@ void Stage::MakeBlock()
 
 void Stage::NextBlock()
 {
-	m_nextBlockStyle = BLOCK_STYLE(rand() % BLOCK_END);
-	m_nextRotState = BLOCK_ROTATE(rand() % ROTATE_END);
+	random_device rd;
+	mt19937_64 mt(rd());
+
+	uniform_int_distribution<int> range_style(0, BLOCK_END - 1);
+	int rand_style = range_style(mt);
+
+	uniform_int_distribution<int> range_rot(0, ROTATE_END - 1);
+	int rand_rot = range_rot(mt);
+
+	m_nextBlockStyle = BLOCK_STYLE(rand_style);
+	m_nextRotState = BLOCK_ROTATE(rand_rot);
 
 	switch (m_nextBlockStyle)
 	{
